@@ -47,6 +47,7 @@ jobs:
       - name: Assemble
         run: ./gradlew jar
       - name: Upload jar file
+        uses: actions/upload-artifact@v2
         with:
           name: build.jar
           path: build/libs/
