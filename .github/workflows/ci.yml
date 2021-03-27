@@ -1,4 +1,4 @@
-name: Java CI
+name: CI/CD with Github Action
 
 on: [push]
 
@@ -53,3 +53,21 @@ jobs:
         with:
           name: build.jar
           path: build/libs/
+
+  Release:
+    needs: [Assemble]
+    if: ${{ github.ref == 'refs/tags/*' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build.jar
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
