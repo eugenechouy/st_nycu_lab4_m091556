@@ -3,7 +3,7 @@ name: CI/CD with Github Action
 on: [push]
 
 jobs:
-  build:
+  Compile:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,11 +13,11 @@ jobs:
         with:
           java-version: '11.0.10'
           architecture: x64
-      - name: Build
+      - name: Compile
         run: ./gradlew classes
 
   Test:
-    needs: [build]
+    needs: [Compile]
     runs-on: ubuntu-latest
 
     steps:
@@ -51,23 +51,24 @@ jobs:
       - name: Upload jar file
         uses: actions/upload-artifact@v2
         with:
-          name: build.jar
+          name: buildedJar
           path: build/libs/
+      - name: Get project version
+        run: echo "::set-output name=version::$(./gradlew -q printVersion)"
 
   Release:
-    needs: [Assemble]
     if: startsWith(github.ref, 'refs/tags/')
+    needs: [Assemble]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
-          name: build.jar
+          name: buildedJar
       - name: Release
         uses: softprops/action-gh-release@v1
-        with:
-          files: build.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: buildedJar/st_nycu_lab4-${{ needs.Assemble.outputs.version }}.jar
