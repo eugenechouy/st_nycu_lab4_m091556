@@ -23,3 +23,9 @@ task printVersion {
         println project.version
     }
 }
+
+task printName {
+    doLast {
+        println project.name
+    }
+}
